@@ -1,16 +1,19 @@
-$:.unshift(File.dirname(__FILE__)) unless $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+require File.join(File.dirname(__FILE__), 'facon/version')
 
-require 'facon/version'
-require 'facon/mockable'
-require 'facon/mock'
-require 'facon/error_generator'
-require 'facon/expectation'
-require 'facon/proxy'
-require 'facon/baconize'
+unless defined?(Motion::Project::Config)
+  raise "This file must be required within a RubyMotion project Rakefile."
+end
 
-require 'facon/core_ext/object'
-
-# Facon is a mocking library in the spirit of the Bacon spec library. Small,
-# compact, and works with Bacon.
-module Facon
+Motion::Project::App.setup do |app|
+  app.development do
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/core_ext/object.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/baconize.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/proxy.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/expectation.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/error_generator.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/mock.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/mockable.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/base.rb')
+    app.files.unshift File.join(File.dirname(__FILE__), 'facon/core_ext/forwardable.rb')
+  end
 end

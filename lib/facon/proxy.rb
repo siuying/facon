@@ -1,4 +1,4 @@
-require 'forwardable'
+# require 'forwardable'
 
 module Facon
   # A proxy for mock objects. Stubs and expectations are set on this proxy.

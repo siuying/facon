@@ -1,4 +1,4 @@
-require 'forwardable'
+# require 'forwardable'
 
 module Facon
   # An Expectation, also know as a mock method, is an expectation that an object
