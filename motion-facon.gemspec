@@ -2,17 +2,14 @@ $:.push File.expand_path('../lib', __FILE__)
 require 'facon/version'
 
 Gem::Specification.new do |s|
-  s.name        = 'facon'
+  s.name        = 'motion-facon'
   s.version     = Facon::VERSION
-  s.authors     = ['chuyeow']
-  s.email       = ['chuyeow@gmail.com']
-  s.homepage    = 'https://github.com/chuyeow/facon'
+  s.authors     = ['chuyeow', 'Francis Chong']
+  s.email       = ['chuyeow@gmail.com', 'francis@ignition.hk']
+  s.homepage    = 'https://github.com/siuying/facon'
   s.summary     = %q{Tiny mocking library.}
   s.description = %q{A mocking library in the spirit of the Bacon spec library. Small, compact, and works with Bacon.}
-
-  s.rubyforge_project = 'facon'
-
-  s.add_development_dependency 'bacon'
+  s.name          = "motion-facon"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
