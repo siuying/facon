@@ -42,10 +42,12 @@ module Facon
       end
 
       def verify_facon_mocks
+        $facon_mocks ||= []
         $facon_mocks.each { |mock| mock.spec_verify }
       end
 
       def teardown_facon_mocks
+        $facon_mocks ||= []
         $facon_mocks.each { |mock| mock.spec_reset }
         $facon_mocks.clear
       end
@@ -66,8 +68,11 @@ module Facon
         # Remove Facon::Mockable methods we mixed in to Object, since we don't
         # need those in the Should class.
         base.class_eval do
-          instance_methods.each do |method|
-            undef_method(method) if Facon::Mockable.public_instance_methods.include?(method)
+          methods = instance_methods(false) || []
+          methods.each do |method|
+            if Facon::Mockable.public_instance_methods.include?(method)
+              undef_method(method)
+            end
           end
         end
       end
@@ -89,10 +94,11 @@ module Facon
   end
 end
 
-
-begin
-  Bacon::Context.class_eval { include Facon::Baconize::ContextExtensions }
-  Should.class_eval { include Facon::Baconize::ShouldExtensions }
-rescue LoadError
-  puts 'Bacon is not available.'
-end
+# moved following to spec/helpers/facon_helper.rb
+#
+# begin
+#   Bacon::Context.class_eval { include Facon::Baconize::ContextExtensions }
+#   Should.class_eval { include Facon::Baconize::ShouldExtensions }
+# rescue LoadError
+#   puts 'Bacon is not available.'
+# end
