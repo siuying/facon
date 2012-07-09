@@ -79,11 +79,11 @@ module Facon
           @proxied_methods << method
         end
 
-        metaclass_eval(<<-EOF, __FILE__, __LINE__)
-          def #{method}(*args, &block)
-            mock_proxy.message_received(:#{method}, *args, &block)
+        metaclass_exec do
+          define_method method.to_sym do |*args, &block|
+            mock_proxy.message_received(method.to_sym, *args, &block)
           end
-        EOF
+        end
       end
 
       def munge(method)
@@ -108,8 +108,8 @@ module Facon
         (class << @target; self; end)
       end
 
-      def metaclass_eval(str, filename, lineno)
-        metaclass.class_eval(str, filename, lineno)
+      def metaclass_exec(&block)
+        metaclass.class_exec(&block)
       end
 
       def find_matching_expectation(method, *args)

@@ -109,9 +109,11 @@
 module Forwardable
 
   @debug = nil
+  @forwardable_delegates = {}
   class<<self
     # force Forwardable to show up in stack backtraces of delegated methods
     attr_accessor :debug
+    attr_accessor :forwardable_delegates
   end
 
   #
@@ -145,16 +147,19 @@ module Forwardable
     method = method.id2name if method.kind_of?(Integer)
     ali = ali.id2name if ali.kind_of?(Integer)
 
-    module_eval(<<-EOS, "(__FORWARDABLE__)", 1)
-      def #{ali}(*args, &block)
-	begin
-	  #{accessor}.__send__(:#{method}, *args, &block)
-	rescue Exception
-	  $@.delete_if{|s| /^\\(__FORWARDABLE__\\):/ =~ s} unless Forwardable::debug
-	  Kernel::raise
-	end
-      end
-    EOS
+    @forwardable_delegates ||= {}
+    @forwardable_delegates[ali.to_sym] = accessor
+  end
+
+
+  alias :original_method_missing :method_missing
+  def method_missing(method_name, *args, &block)
+    @forwardable_delegates ||= {}
+    if @forwardable_delegates.include?(method_name)
+      @forwardable_delegates[method_name].__send(*args, &block)
+    else
+      original_method_missing  
+    end    
   end
 
   alias def_delegators def_instance_delegators
