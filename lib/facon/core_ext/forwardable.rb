@@ -142,25 +142,35 @@ module Forwardable
   #
   # See the examples at Forwardable and forwardable.rb.
   #
+
   def def_instance_delegator(accessor, method, ali = method)
-    accessor = accessor.id2name if accessor.kind_of?(Integer)
-    method = method.id2name if method.kind_of?(Integer)
-    ali = ali.id2name if ali.kind_of?(Integer)
+    # If it's not a class or module, it's an instance
+    begin
+      module_eval do
+        begin
+          define_method(ali) do
+            accessor.__send__(method, *args, &block)
+          end
+        rescue Exception
+          $@.delete_if{|s| %r"#{Regexp.quote(__FILE__)}"o =~ s} unless Forwardable::debug
+          ::Kernel::raise
+        end
+      end
+    rescue
+      instance_eval do
+        begin
+          define_method(ali) do
+            accessor.__send__(method, *args, &block)
+          end
+        rescue Exception
+          $@.delete_if{|s| %r"#{Regexp.quote(__FILE__)}"o =~ s} unless Forwardable::debug
+          ::Kernel::raise
+        end        
+      end
+    end
 
-    @forwardable_delegates ||= {}
-    @forwardable_delegates[ali.to_sym] = accessor
   end
 
-
-  alias :original_method_missing :method_missing
-  def method_missing(method_name, *args, &block)
-    @forwardable_delegates ||= {}
-    if @forwardable_delegates.include?(method_name)
-      @forwardable_delegates[method_name].__send(*args, &block)
-    else
-      original_method_missing  
-    end    
-  end
 
   alias def_delegators def_instance_delegators
   alias def_delegator def_instance_delegator
@@ -206,16 +216,16 @@ module SingleForwardable
     method = method.id2name if method.kind_of?(Integer)
     ali = ali.id2name if ali.kind_of?(Integer)
 
-    instance_eval(<<-EOS, "(__FORWARDABLE__)", 1)
-       def #{ali}(*args, &block)
-	 begin
-	   #{accessor}.__send__(:#{method}, *args,&block)
-	 rescue Exception
-	   $@.delete_if{|s| /^\\(__FORWARDABLE__\\):/ =~ s} unless Forwardable::debug
-	   Kernel::raise
-	 end
-       end
-    EOS
+    instance_eval do
+      begin
+        define_method(ali) do
+          accessor.__send__(method, *args, &block)
+        end
+      rescue Exception
+        $@.delete_if{|s| %r"#{Regexp.quote(__FILE__)}"o =~ s} unless Forwardable::debug
+        ::Kernel::raise
+      end        
+    end
   end
 
   alias def_delegators def_singleton_delegators
