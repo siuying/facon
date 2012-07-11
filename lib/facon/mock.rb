@@ -22,10 +22,10 @@ module Facon
       stub_out(stubs)
     end
 
+    alias_method :original_mock_method_missing, :method_missing
     def method_missing(method, *args, &block)
-      super(method, *args, &block)
+      original_mock_method_missing(method, *args, &block)
     rescue NameError
-      # An unexpected method was called on this mock.
       mock_proxy.raise_unexpected_message_error(method, *args)
     end
 

@@ -3,9 +3,6 @@
 module Facon
   # A proxy for mock objects. Stubs and expectations are set on this proxy.
   class Proxy
-    extend ::Forwardable
-    def_delegators :@error_generator, :raise_unexpected_message_error, :raise_unexpected_message_args_error
-  
     def initialize(target, name)
       @target, @name = target, name
       @expectations = []
@@ -13,6 +10,14 @@ module Facon
       @proxied_methods = []
       @error_generator = ErrorGenerator.new(target, name)
       @expectation_ordering = nil unless defined?(@expectation_ordering)
+    end
+
+    def raise_unexpected_message_error(method, *args)
+      @error_generator.raise_unexpected_message_error(method, *args)
+    end
+
+    def raise_unexpected_message_args_error(expectation, *args)
+      @error_generator.raise_unexpected_message_args_error(expectation, *args)
     end
 
     def add_stub(expected_from, method)
@@ -80,8 +85,8 @@ module Facon
         end
 
         metaclass_exec do
-          define_method method.to_sym do |*args, &block|
-            mock_proxy.message_received(method.to_sym, *args, &block)
+          define_method(method) do |*args, &block|
+            mock_proxy.message_received(method, *args, &block)
           end
         end
       end

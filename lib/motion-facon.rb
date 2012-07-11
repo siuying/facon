@@ -14,6 +14,5 @@ Motion::Project::App.setup do |app|
     app.files.unshift File.join(File.dirname(__FILE__), 'facon/mock.rb')
     app.files.unshift File.join(File.dirname(__FILE__), 'facon/mockable.rb')
     app.files.unshift File.join(File.dirname(__FILE__), 'facon/base.rb')
-    app.files.unshift File.join(File.dirname(__FILE__), 'facon/core_ext/forwardable.rb')
   end
 end

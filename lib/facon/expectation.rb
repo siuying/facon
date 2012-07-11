@@ -4,9 +4,6 @@ module Facon
   # An Expectation, also know as a mock method, is an expectation that an object
   # should receive a specific message during the execution of an example.
   class Expectation
-    extend ::Forwardable
-    def_delegators :@error_generator, :raise_expectation_error, :raise_block_failed_error
-
     attr_reader :error_generator, :expectation_ordering, :expected_from, :method, :method_block, :expected_received_count, :actual_received_count, :argument_expectation
 
     def initialize(error_generator, expectation_ordering, expected_from, method, method_block, expected_received_count = 1)
@@ -22,6 +19,14 @@ module Facon
       @symbol_to_throw = nil
       @actual_received_count = 0
       @args_to_yield = []
+    end
+
+    def raise_expectation_error(expectation)
+      @error_generator.raise_expectation_error(expectation)
+    end
+
+    def raise_block_failed_error(expectation, exception_message)
+      @error_generator.raise_block_failed_error(expectation, exception_message)
     end
 
     # Sets up the expected method to return the given value.
